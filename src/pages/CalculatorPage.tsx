@@ -73,6 +73,8 @@ const ExpenseRow = ({
           inputMode="decimal"
           value={Number.isFinite(amount) ? String(Math.round(amount)) : "0"}
           onChange={(e) => onAmount(id, parseNumber(e.target.value))}
+          onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+          onClick={(e) => e.currentTarget.select()}
         />
       </td>
       <td className="right">{formatUAH(remainingAfter)}</td>
@@ -319,6 +321,8 @@ export const CalculatorPage: React.FC = () => {
                           unitPrice: parseNumber(e.target.value),
                         })
                       }
+                      onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+                      onClick={(e) => e.currentTarget.select()}
                     />
                   </td>
                 </tr>
@@ -335,6 +339,8 @@ export const CalculatorPage: React.FC = () => {
                           quantity: parseNumber(e.target.value),
                         })
                       }
+                      onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+                      onClick={(e) => e.currentTarget.select()}
                     />
                   </td>
                 </tr>
