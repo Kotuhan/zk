@@ -39,3 +39,20 @@ export type ComputationResult = {
   profitAmount: number;
   profitPercent: number;
 };
+
+export type Project = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  state: CalculatorState;
+};
+
+export type ProjectListItem = {
+  id: string;
+  name: string;
+  revenue: number;
+  profit: number;
+  profitPercent: number;
+  updatedAt: string;
+};

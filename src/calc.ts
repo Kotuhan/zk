@@ -60,9 +60,16 @@ export const computeAll = (state: CalculatorState): ComputationResult => {
 
   const rows = [
     {
+      id: "logistics" as const,
+      label: state.expenses.logistics.label,
+      base: revenue,
+      ...logistics,
+      remainingAfter: afterLogistics,
+    },
+    {
       id: "managers" as const,
       label: state.expenses.managers.label,
-      base: revenue,
+      base: afterLogistics,
       ...managers,
       remainingAfter: afterManagers,
     },
@@ -86,13 +93,6 @@ export const computeAll = (state: CalculatorState): ComputationResult => {
       base: revenue,
       ...hardware,
       remainingAfter: afterHardware,
-    },
-    {
-      id: "logistics" as const,
-      label: state.expenses.logistics.label,
-      base: revenue,
-      ...logistics,
-      remainingAfter: afterLogistics,
     },
     {
       id: "installers" as const,

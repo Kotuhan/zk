@@ -10,8 +10,8 @@
   --danger: #ff7676;
   --ok: #7dffa0;
   --shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-    Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
 * {
@@ -25,7 +25,11 @@ body {
 
 body {
   margin: 0;
-  background: radial-gradient(1400px 900px at 20% 10%, #163057 0%, var(--bg) 60%);
+  background: radial-gradient(
+    1400px 900px at 20% 10%,
+    #163057 0%,
+    var(--bg) 60%
+  );
   color: var(--text);
 }
 
@@ -218,7 +222,185 @@ td {
   min-height: 0;
 }
 
+.appLayout {
+  display: flex;
+  min-height: 100vh;
+  background: radial-gradient(
+    1400px 900px at 20% 10%,
+    #163057 0%,
+    var(--bg) 60%
+  );
+}
+
+.sidebar {
+  width: 320px;
+  background: rgba(0, 0, 0, 0.3);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebarHeader {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebarTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mainContent {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.projectList {
+  padding: 12px;
+  flex: 1;
+}
+
+.projectCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.projectCard:hover {
+  background: var(--card-strong);
+  border-color: var(--accent);
+}
+
+.projectCard.active {
+  background: var(--card-strong);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(110, 231, 255, 0.2);
+}
+
+.projectCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.projectName {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.btnDelete {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btnDelete:hover {
+  background: rgba(255, 118, 118, 0.2);
+}
+
+.projectStats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.projectStat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.projectStatLabel {
+  color: var(--muted);
+}
+
+.projectStatValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.projectDate {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.btnPrimary {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #5dd4ea;
+  transform: translateY(-1px);
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent);
+}
+
 @media (max-width: 860px) {
+  .appLayout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-height: 300px;
+  }
+
   .inputsRow {
     grid-template-columns: 1fr;
   }
