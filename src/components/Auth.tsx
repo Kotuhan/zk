@@ -1,14 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../contexts/ToastContext";
 import { Loader } from "./Loader";
 
 export const Auth: React.FC = () => {
-  const { signIn, signUp, loading } = useAuth();
+  const navigate = useNavigate();
+  const { user, signIn, signUp, loading } = useAuth();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+
+  // Якщо користувач вже авторизований, редірект на головну
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +68,7 @@ export const Auth: React.FC = () => {
             <label htmlFor="email">Email</label>
             <input
               id="email"
+              name="email"
               type="email"
               className="input"
               value={email}
@@ -72,6 +82,7 @@ export const Auth: React.FC = () => {
             <label htmlFor="password">Пароль</label>
             <input
               id="password"
+              name="password"
               type="password"
               className="input"
               value={password}
