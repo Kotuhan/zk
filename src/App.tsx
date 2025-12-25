@@ -281,17 +281,22 @@ export default function App() {
       />
 
       {projectsLoading && (
-        <div style={{ 
-          position: 'fixed', 
-          top: '80px', 
-          right: '20px', 
-          zIndex: 9999 
-        }}>
-          <div className="pill" style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px' 
-          }}>
+        <div
+          style={{
+            position: "fixed",
+            top: "80px",
+            right: "20px",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="pill"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
             <div className="spinner spinner-small">
               <div className="spinner-circle"></div>
             </div>

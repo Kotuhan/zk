@@ -32,6 +32,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 4. Вставте в редактор і натисніть **Run** (або F5)
 
 Це створить:
+
 - Таблицю `projects`
 - Індекси для швидкого пошуку
 - Row Level Security політики
@@ -50,6 +51,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### Тестування локально:
 
 Ви можете використовувати тестові email'и:
+
 - `test@example.com`
 - `user@test.com`
 
@@ -69,14 +71,17 @@ npm run dev
 ## Troubleshooting
 
 ### Помилка "Invalid API key"
+
 - Перевірте чи правильно скопійовані ключі в `.env`
 - Перезапустіть dev сервер після зміни `.env`
 
 ### Помилка "Row Level Security"
+
 - Переконайтеся що виконали SQL скрипт `supabase-schema.sql`
 - Перевірте що ви авторизовані
 
 ### Проекти не завантажуються
+
 - Відкрийте консоль браузера (F12)
 - Перевірте чи є помилки
 - Можливо потрібно очистити localStorage: `localStorage.clear()`
@@ -84,13 +89,15 @@ npm run dev
 ## Додаткові можливості
 
 ### Real-time синхронізація (майбутнє)
+
 Можна додати автоматичне оновлення при змінах з інших пристроїв:
 
 ```typescript
 supabase
-  .channel('projects')
-  .on('postgres_changes', 
-    { event: '*', schema: 'public', table: 'projects' },
+  .channel("projects")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "projects" },
     (payload) => {
       // Оновити список проектів
     }
@@ -99,11 +106,12 @@ supabase
 ```
 
 ### Міграція даних з localStorage
+
 Додайте функцію для перенесення існуючих проектів:
 
 ```typescript
 const migrateToSupabase = async () => {
-  const local = localStorage.getItem('zk-projects');
+  const local = localStorage.getItem("zk-projects");
   if (local && user) {
     const projects = JSON.parse(local);
     // Завантажити в Supabase...

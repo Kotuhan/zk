@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import type { Project } from '../types';
-import { supabase } from '../lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import { useState, useEffect } from "react";
+import type { Project } from "../types";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
-const STORAGE_KEY = 'zk-projects';
+const STORAGE_KEY = "zk-projects";
 
 export const useProjectsWithSupabase = (user: User | null) => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -29,10 +29,10 @@ export const useProjectsWithSupabase = (user: User | null) => {
 
     try {
       const { data, error: fetchError } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
+        .from("projects")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
 
       if (fetchError) throw fetchError;
 
@@ -47,12 +47,15 @@ export const useProjectsWithSupabase = (user: User | null) => {
       setProjects(mappedProjects);
 
       // Відновлюємо активний проект
-      const storedActiveId = localStorage.getItem('zk-active-project');
-      if (storedActiveId && mappedProjects.some((p) => p.id === storedActiveId)) {
+      const storedActiveId = localStorage.getItem("zk-active-project");
+      if (
+        storedActiveId &&
+        mappedProjects.some((p) => p.id === storedActiveId)
+      ) {
         setActiveProjectId(storedActiveId);
       }
     } catch (err: any) {
-      console.error('Error loading projects:', err);
+      console.error("Error loading projects:", err);
       setError(err.message);
       // Фолбек на localStorage
       loadFromLocalStorage();
@@ -66,7 +69,7 @@ export const useProjectsWithSupabase = (user: User | null) => {
     if (stored) {
       setProjects(JSON.parse(stored));
     }
-    const storedActiveId = localStorage.getItem('zk-active-project');
+    const storedActiveId = localStorage.getItem("zk-active-project");
     if (storedActiveId) {
       setActiveProjectId(storedActiveId);
     }
@@ -94,7 +97,7 @@ export const useProjectsWithSupabase = (user: User | null) => {
     try {
       if (user) {
         // Зберігаємо в Supabase
-        const { error: insertError } = await supabase.from('projects').insert({
+        const { error: insertError } = await supabase.from("projects").insert({
           id: newProject.id,
           user_id: user.id,
           name: newProject.name,
@@ -111,11 +114,11 @@ export const useProjectsWithSupabase = (user: User | null) => {
 
       setProjects((prev) => [...prev, newProject]);
       setActiveProjectId(newProject.id);
-      localStorage.setItem('zk-active-project', newProject.id);
+      localStorage.setItem("zk-active-project", newProject.id);
 
       return newProject;
     } catch (err: any) {
-      console.error('Error creating project:', err);
+      console.error("Error creating project:", err);
       setError(err.message);
       return null;
     } finally {
@@ -136,14 +139,14 @@ export const useProjectsWithSupabase = (user: User | null) => {
       if (user) {
         // Оновлюємо в Supabase
         const { error: updateError } = await supabase
-          .from('projects')
+          .from("projects")
           .update({
             name: updatedData.name,
             state: updatedData.state,
             updated_at: updatedData.updatedAt,
           })
-          .eq('id', id)
-          .eq('user_id', user.id);
+          .eq("id", id)
+          .eq("user_id", user.id);
 
         if (updateError) throw updateError;
       }
@@ -159,7 +162,7 @@ export const useProjectsWithSupabase = (user: User | null) => {
         return updated;
       });
     } catch (err: any) {
-      console.error('Error updating project:', err);
+      console.error("Error updating project:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -174,10 +177,10 @@ export const useProjectsWithSupabase = (user: User | null) => {
       if (user) {
         // Видаляємо з Supabase
         const { error: deleteError } = await supabase
-          .from('projects')
+          .from("projects")
           .delete()
-          .eq('id', id)
-          .eq('user_id', user.id);
+          .eq("id", id)
+          .eq("user_id", user.id);
 
         if (deleteError) throw deleteError;
       }
@@ -193,10 +196,10 @@ export const useProjectsWithSupabase = (user: User | null) => {
 
       if (activeProjectId === id) {
         setActiveProjectId(null);
-        localStorage.removeItem('zk-active-project');
+        localStorage.removeItem("zk-active-project");
       }
     } catch (err: any) {
-      console.error('Error deleting project:', err);
+      console.error("Error deleting project:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -210,7 +213,7 @@ export const useProjectsWithSupabase = (user: User | null) => {
   // Оновлюємо активний проект в localStorage
   useEffect(() => {
     if (activeProjectId) {
-      localStorage.setItem('zk-active-project', activeProjectId);
+      localStorage.setItem("zk-active-project", activeProjectId);
     }
   }, [activeProjectId]);
 
