@@ -1,5 +1,5 @@
-import React from 'react';
-import { useToast } from '../contexts/ToastContext';
+import React from "react";
+import { useToast } from "../contexts/ToastContext";
 
 export const ToastContainer: React.FC = () => {
   const { toasts, hideToast } = useToast();
@@ -10,10 +10,10 @@ export const ToastContainer: React.FC = () => {
         <div key={toast.id} className={`toast toast-${toast.type}`}>
           <div className="toastContent">
             <span className="toastIcon">
-              {toast.type === 'success' && '✓'}
-              {toast.type === 'error' && '✕'}
-              {toast.type === 'warning' && '⚠'}
-              {toast.type === 'info' && 'ℹ'}
+              {toast.type === "success" && "✓"}
+              {toast.type === "error" && "✕"}
+              {toast.type === "warning" && "⚠"}
+              {toast.type === "info" && "ℹ"}
             </span>
             <span className="toastMessage">{toast.message}</span>
           </div>

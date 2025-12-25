@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 interface PromptModalProps {
   isOpen: boolean;
@@ -12,8 +12,8 @@ interface PromptModalProps {
 export const PromptModal: React.FC<PromptModalProps> = ({
   isOpen,
   title,
-  defaultValue = '',
-  placeholder = '',
+  defaultValue = "",
+  placeholder = "",
   onConfirm,
   onCancel,
 }) => {
@@ -39,7 +39,7 @@ export const PromptModal: React.FC<PromptModalProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       onCancel();
     }
   };

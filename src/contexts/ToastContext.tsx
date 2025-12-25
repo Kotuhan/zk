@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from "react";
 
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = "success" | "error" | "info" | "warning";
 
 export interface Toast {
   id: string;
@@ -27,7 +27,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const showToast = useCallback(
-    (message: string, type: ToastType = 'info', duration: number = 3000) => {
+    (message: string, type: ToastType = "info", duration: number = 3000) => {
       const id = Date.now().toString();
       const toast: Toast = { id, message, type, duration };
 
@@ -52,7 +52,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+    throw new Error("useToast must be used within ToastProvider");
   }
   return context;
 };

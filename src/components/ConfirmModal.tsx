@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -6,7 +6,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'danger' | 'warning' | 'info';
+  type?: "danger" | "warning" | "info";
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -15,9 +15,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,
   title,
   message,
-  confirmText = 'Підтвердити',
-  cancelText = 'Скасувати',
-  type = 'info',
+  confirmText = "Підтвердити",
+  cancelText = "Скасувати",
+  type = "info",
   onConfirm,
   onCancel,
 }) => {
@@ -40,7 +40,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             {cancelText}
           </button>
           <button
-            className={`btnPrimary ${type === 'danger' ? 'btn-danger' : ''}`}
+            className={`btnPrimary ${type === "danger" ? "btn-danger" : ""}`}
             onClick={() => {
               onConfirm();
               onCancel();
