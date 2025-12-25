@@ -1,11 +1,14 @@
 import React from "react";
 import type { CalculatorState, ExpenseId } from "./types";
 import { computeAll, setExpenseAmount, setExpensePercent } from "./calc";
-import { useProjects } from "./hooks/useProjects";
+import { useProjectsWithSupabase } from "./hooks/useProjectsWithSupabase";
+import { useAuth } from "./hooks/useAuth";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { useToast } from "./contexts/ToastContext";
 import { PromptModal } from "./components/PromptModal";
 import { ConfirmModal } from "./components/ConfirmModal";
+import { Auth } from "./components/Auth";
+import { Loader } from "./components/Loader";
 
 const formatUAH = (value: number) =>
   new Intl.NumberFormat("uk-UA", {
@@ -127,6 +130,7 @@ const ExpenseRow = ({
 };
 
 export default function App() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const {
     projects,
     activeProjectId,
@@ -135,7 +139,8 @@ export default function App() {
     updateProject,
     deleteProject,
     getActiveProject,
-  } = useProjects();
+    loading: projectsLoading,
+  } = useProjectsWithSupabase(user);
 
   const { showToast } = useToast();
 
@@ -246,6 +251,25 @@ export default function App() {
     });
   };
 
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      showToast("Помилка виходу", "error");
+    } else {
+      showToast("Ви вийшли з системи", "info");
+    }
+  };
+
+  // Показуємо loader під час завантаження auth
+  if (authLoading) {
+    return <Loader fullScreen message="Завантаження..." />;
+  }
+
+  // Якщо користувач не авторизований, показуємо Auth
+  if (!user) {
+    return <Auth />;
+  }
+
   return (
     <div className="appLayout">
       <ProjectSidebar
@@ -255,6 +279,26 @@ export default function App() {
         onCreateProject={handleCreateProject}
         onDeleteProject={handleDeleteProject}
       />
+
+      {projectsLoading && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '80px', 
+          right: '20px', 
+          zIndex: 9999 
+        }}>
+          <div className="pill" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px' 
+          }}>
+            <div className="spinner spinner-small">
+              <div className="spinner-circle"></div>
+            </div>
+            Синхронізація...
+          </div>
+        </div>
+      )}
 
       <div className="mainContent">
         <div className="container">
@@ -281,11 +325,19 @@ export default function App() {
               </p>
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              {user && (
+                <div className="pill" style={{ cursor: "default" }}>
+                  {user.email}
+                </div>
+              )}
               <div className="pill">
                 Маркетинг рахується від залишку після менеджерів
               </div>
               <button className="btnPrimary" onClick={handleSaveProject}>
                 💾 Зберегти
+              </button>
+              <button className="btnSecondary" onClick={handleSignOut}>
+                Вийти
               </button>
             </div>
           </div>
