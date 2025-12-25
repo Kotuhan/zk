@@ -3,6 +3,9 @@ import type { CalculatorState, ExpenseId } from "./types";
 import { computeAll, setExpenseAmount, setExpensePercent } from "./calc";
 import { useProjects } from "./hooks/useProjects";
 import { ProjectSidebar } from "./components/ProjectSidebar";
+import { useToast } from "./contexts/ToastContext";
+import { PromptModal } from "./components/PromptModal";
+import { ConfirmModal } from "./components/ConfirmModal";
 
 const formatUAH = (value: number) =>
   new Intl.NumberFormat("uk-UA", {
@@ -134,6 +137,8 @@ export default function App() {
     getActiveProject,
   } = useProjects();
 
+  const { showToast } = useToast();
+
   const activeProject = getActiveProject();
   const [state, setState] = React.useState<CalculatorState>(
     activeProject?.state || getInitialState()
@@ -141,6 +146,31 @@ export default function App() {
   const [projectName, setProjectName] = React.useState(
     activeProject?.name || ""
   );
+
+  // Модальні вікна
+  const [promptModal, setPromptModal] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    defaultValue: string;
+    onConfirm: (value: string) => void;
+  }>({
+    isOpen: false,
+    title: "",
+    defaultValue: "",
+    onConfirm: () => {},
+  });
+
+  const [confirmModal, setConfirmModal] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   // Синхронізація стану з активним проектом
   React.useEffect(() => {
@@ -153,34 +183,67 @@ export default function App() {
   const computed = React.useMemo(() => computeAll(state), [state]);
 
   const handleCreateProject = () => {
-    const name = prompt("Введіть назву проекту:", "Перегородки");
-    if (name) {
-      createProject(name, getInitialState());
-    }
+    setPromptModal({
+      isOpen: true,
+      title: "Створити новий проект",
+      defaultValue: "Перегородки",
+      onConfirm: (name) => {
+        createProject(name, getInitialState());
+        showToast("Проект створено!", "success");
+        setPromptModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   const handleSaveProject = () => {
     if (!activeProjectId) {
       // Створити новий проект
-      const name = prompt("Введіть назву проекту:", "Перегородки");
-      if (name) {
-        createProject(name, state);
-      }
+      setPromptModal({
+        isOpen: true,
+        title: "Зберегти як новий проект",
+        defaultValue: "Перегородки",
+        onConfirm: (name) => {
+          createProject(name, state);
+          showToast("Проект збережено!", "success");
+          setPromptModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
     } else {
       // Оновити існуючий
       updateProject(activeProjectId, { state, name: projectName });
-      alert("Проект збережено!");
+      showToast("Проект оновлено!", "success");
     }
   };
 
   const handleRenameProject = () => {
     if (activeProjectId) {
-      const newName = prompt("Нова назва проекту:", projectName);
-      if (newName && newName !== projectName) {
-        setProjectName(newName);
-        updateProject(activeProjectId, { name: newName });
-      }
+      setPromptModal({
+        isOpen: true,
+        title: "Перейменувати проект",
+        defaultValue: projectName,
+        onConfirm: (newName) => {
+          if (newName !== projectName) {
+            setProjectName(newName);
+            updateProject(activeProjectId, { name: newName });
+            showToast("Проект перейменовано!", "success");
+          }
+          setPromptModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
     }
+  };
+
+  const handleDeleteProject = (id: string, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Видалити проект",
+      message: `Ви впевнені, що хочете видалити проект "${name}"? Цю дію не можна скасувати.`,
+      onConfirm: () => {
+        deleteProject(id);
+        showToast("Проект видалено!", "success");
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   return (
@@ -190,7 +253,7 @@ export default function App() {
         activeProjectId={activeProjectId}
         onSelectProject={setActiveProjectId}
         onCreateProject={handleCreateProject}
-        onDeleteProject={deleteProject}
+        onDeleteProject={handleDeleteProject}
       />
 
       <div className="mainContent">
@@ -259,7 +322,7 @@ export default function App() {
                         setState((prev) => ({
                           ...prev,
                           quantity: Math.max(
-                            1,
+                            0,
                             Math.floor(parseNumber(e.target.value))
                           ),
                         }))
@@ -373,6 +436,26 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      <PromptModal
+        isOpen={promptModal.isOpen}
+        title={promptModal.title}
+        defaultValue={promptModal.defaultValue}
+        placeholder="Введіть назву..."
+        onConfirm={promptModal.onConfirm}
+        onCancel={() => setPromptModal((prev) => ({ ...prev, isOpen: false }))}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type="danger"
+        confirmText="Видалити"
+        cancelText="Скасувати"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

@@ -7,7 +7,7 @@ interface ProjectSidebarProps {
   activeProjectId: string | null;
   onSelectProject: (id: string) => void;
   onCreateProject: () => void;
-  onDeleteProject: (id: string) => void;
+  onDeleteProject: (id: string, name: string) => void;
 }
 
 const formatUAH = (value: number) =>
@@ -65,11 +65,7 @@ export const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
                     className="btnDelete"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (
-                        window.confirm(`Видалити проект "${project.name}"?`)
-                      ) {
-                        onDeleteProject(project.id);
-                      }
+                      onDeleteProject(project.id, project.name);
                     }}
                   >
                     ×
