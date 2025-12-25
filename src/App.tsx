@@ -1,6 +1,8 @@
 import React from "react";
 import type { CalculatorState, ExpenseId } from "./types";
 import { computeAll, setExpenseAmount, setExpensePercent } from "./calc";
+import { useProjects } from "./hooks/useProjects";
+import { ProjectSidebar } from "./components/ProjectSidebar";
 
 const formatUAH = (value: number) =>
   new Intl.NumberFormat("uk-UA", {
@@ -22,7 +24,7 @@ const parseNumber = (raw: string) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const initialState: CalculatorState = {
+export const getInitialState = (): CalculatorState => ({
   unitPrice: 120000,
   quantity: 1,
   expenses: {
@@ -69,7 +71,7 @@ const initialState: CalculatorState = {
       value: 0.02,
     },
   },
-};
+});
 
 const ExpenseRow = ({
   id,
@@ -122,161 +124,251 @@ const ExpenseRow = ({
 };
 
 export default function App() {
-  const [state, setState] = React.useState<CalculatorState>(initialState);
+  const {
+    projects,
+    activeProjectId,
+    setActiveProjectId,
+    createProject,
+    updateProject,
+    deleteProject,
+    getActiveProject,
+  } = useProjects();
+
+  const activeProject = getActiveProject();
+  const [state, setState] = React.useState<CalculatorState>(
+    activeProject?.state || getInitialState()
+  );
+  const [projectName, setProjectName] = React.useState(
+    activeProject?.name || ""
+  );
+
+  // Синхронізація стану з активним проектом
+  React.useEffect(() => {
+    if (activeProject) {
+      setState(activeProject.state);
+      setProjectName(activeProject.name);
+    }
+  }, [activeProject]);
+
   const computed = React.useMemo(() => computeAll(state), [state]);
 
+  const handleCreateProject = () => {
+    const name = prompt("Введіть назву проекту:", "Перегородки");
+    if (name) {
+      createProject(name, getInitialState());
+    }
+  };
+
+  const handleSaveProject = () => {
+    if (!activeProjectId) {
+      // Створити новий проект
+      const name = prompt("Введіть назву проекту:", "Перегородки");
+      if (name) {
+        createProject(name, state);
+      }
+    } else {
+      // Оновити існуючий
+      updateProject(activeProjectId, { state, name: projectName });
+      alert("Проект збережено!");
+    }
+  };
+
+  const handleRenameProject = () => {
+    if (activeProjectId) {
+      const newName = prompt("Нова назва проекту:", projectName);
+      if (newName && newName !== projectName) {
+        setProjectName(newName);
+        updateProject(activeProjectId, { name: newName });
+      }
+    }
+  };
+
   return (
-    <div className="container">
-      <div className="header">
-        <div>
-          <h1 className="title">Калькулятор прибутковості перегородок</h1>
-          <p className="subtitle">
-            Кожну витрату можна вводити у % або в грн: повзунок міняє %, поле
-            суми — грн (поля звʼязані).
-          </p>
-        </div>
-        <div className="pill">
-          Маркетинг рахується від залишку після менеджерів
-        </div>
-      </div>
+    <div className="appLayout">
+      <ProjectSidebar
+        projects={projects}
+        activeProjectId={activeProjectId}
+        onSelectProject={setActiveProjectId}
+        onCreateProject={handleCreateProject}
+        onDeleteProject={deleteProject}
+      />
 
-      <div className="grid">
-        <div className="card">
-          <div className="cardHeader">
-            <h2>Вхідні дані</h2>
-            <div className="pill">Дохід: {formatUAH(computed.revenue)}</div>
-          </div>
-          <div className="content">
-            <div className="inputsRow">
-              <div className="field">
-                <label>Ціна однієї перегородки (грн)</label>
-                <input
-                  className="input rightAligned"
-                  inputMode="decimal"
-                  value={String(state.unitPrice)}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      unitPrice: parseNumber(e.target.value),
-                    }))
-                  }
-                />
+      <div className="mainContent">
+        <div className="container">
+          <div className="header">
+            <div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <h1 className="title">
+                  {activeProject ? projectName : "Калькулятор прибутковості"}
+                </h1>
+                {activeProject && (
+                  <button
+                    className="btnSecondary"
+                    onClick={handleRenameProject}
+                  >
+                    ✎
+                  </button>
+                )}
               </div>
-              <div className="field">
-                <label>Кількість</label>
-                <input
-                  className="input rightAligned"
-                  inputMode="numeric"
-                  value={String(state.quantity)}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      quantity: Math.max(
-                        0,
-                        Math.floor(parseNumber(e.target.value))
-                      ),
-                    }))
-                  }
-                />
+              <p className="subtitle">
+                Кожну витрату можна вводити у % або в грн: повзунок міняє %,
+                поле суми — грн (поля зв'язані).
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <div className="pill">
+                Маркетинг рахується від залишку після менеджерів
               </div>
-              <div className="field">
-                <label>Середня ціна (контроль)</label>
-                <input
-                  className="input"
-                  value={formatUAH(state.unitPrice)}
-                  readOnly
-                />
-              </div>
+              <button className="btnPrimary" onClick={handleSaveProject}>
+                💾 Зберегти
+              </button>
             </div>
           </div>
-        </div>
 
-        <div className="card">
-          <div className="cardHeader">
-            <h2>Витрати (зверху вниз)</h2>
-            <div className="pill">
-              Залишок: {formatUAH(computed.profitAmount)}
-            </div>
-          </div>
-          <div className="content" style={{ padding: 0 }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Стаття</th>
-                  <th className="right">База</th>
-                  <th>Відсоток</th>
-                  <th className="right">Витрата (грн)</th>
-                  <th className="right">Залишок</th>
-                </tr>
-              </thead>
-              <tbody>
-                {computed.rows.map((row) => (
-                  <ExpenseRow
-                    key={row.id}
-                    id={row.id}
-                    label={row.label}
-                    base={row.base}
-                    percent={row.percent}
-                    amount={row.amount}
-                    remainingAfter={row.remainingAfter}
-                    onPercent={(id, p) =>
-                      setState((prev) => setExpensePercent(prev, id, p))
-                    }
-                    onAmount={(id, a) =>
-                      setState((prev) => setExpenseAmount(prev, id, a))
-                    }
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="cardHeader">
-            <h2>Підсумок</h2>
-            <div className="pill">
-              Витрати: {formatPct(computed.totalExpensesPercent)} · Прибуток:{" "}
-              {formatPct(computed.profitPercent)}
-            </div>
-          </div>
-          <div className="content">
-            <div className="summary">
-              <div className="metric">
-                <div className="metricLabel">Загальні витрати</div>
-                <div className="metricValue">
-                  {formatUAH(computed.totalExpensesAmount)}
-                </div>
+          <div className="grid">
+            <div className="card">
+              <div className="cardHeader">
+                <h2>Вхідні дані</h2>
+                <div className="pill">Дохід: {formatUAH(computed.revenue)}</div>
               </div>
-              <div className="metric">
-                <div className="metricLabel">Залишок після всіх витрат</div>
-                <div
-                  className={[
-                    "metricValue",
-                    computed.profitAmount < 0 ? "negative" : "positive",
-                  ].join(" ")}
-                >
-                  {formatUAH(computed.profitAmount)}
-                </div>
-              </div>
-              <div className="metric">
-                <div className="metricLabel">Залишок у відсотках</div>
-                <div
-                  className={[
-                    "metricValue",
-                    computed.profitPercent < 0 ? "negative" : "positive",
-                  ].join(" ")}
-                >
-                  {formatPct(computed.profitPercent)}
+              <div className="content">
+                <div className="inputsRow">
+                  <div className="field">
+                    <label>Ціна однієї перегородки (грн)</label>
+                    <input
+                      className="input rightAligned"
+                      inputMode="decimal"
+                      value={String(state.unitPrice)}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          unitPrice: parseNumber(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Кількість</label>
+                    <input
+                      className="input rightAligned"
+                      inputMode="numeric"
+                      value={String(state.quantity)}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          quantity: Math.max(
+                            1,
+                            Math.floor(parseNumber(e.target.value))
+                          ),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Середня ціна (контроль)</label>
+                    <input
+                      className="input"
+                      value={formatUAH(state.unitPrice)}
+                      readOnly
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="warningMessage">
-              {computed.profitAmount < 0 ? (
-                <p className="muted" style={{ marginTop: 12, marginBottom: 0 }}>
-                  Увага: витрати перевищують дохід (відʼємний прибуток).
-                </p>
-              ) : null}
+
+            <div className="card">
+              <div className="cardHeader">
+                <h2>Витрати (зверху вниз)</h2>
+                <div className="pill">
+                  Залишок: {formatUAH(computed.profitAmount)}
+                </div>
+              </div>
+              <div className="content" style={{ padding: 0 }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Стаття</th>
+                      <th className="right">База</th>
+                      <th>Відсоток</th>
+                      <th className="right">Витрата (грн)</th>
+                      <th className="right">Залишок</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {computed.rows.map((row) => (
+                      <ExpenseRow
+                        key={row.id}
+                        id={row.id}
+                        label={row.label}
+                        base={row.base}
+                        percent={row.percent}
+                        amount={row.amount}
+                        remainingAfter={row.remainingAfter}
+                        onPercent={(id, p) =>
+                          setState((prev) => setExpensePercent(prev, id, p))
+                        }
+                        onAmount={(id, a) =>
+                          setState((prev) => setExpenseAmount(prev, id, a))
+                        }
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="cardHeader">
+                <h2>Підсумок</h2>
+                <div className="pill">
+                  Витрати: {formatPct(computed.totalExpensesPercent)} ·
+                  Прибуток: {formatPct(computed.profitPercent)}
+                </div>
+              </div>
+              <div className="content">
+                <div className="summary">
+                  <div className="metric">
+                    <div className="metricLabel">Загальні витрати</div>
+                    <div className="metricValue">
+                      {formatUAH(computed.totalExpensesAmount)}
+                    </div>
+                  </div>
+                  <div className="metric">
+                    <div className="metricLabel">Залишок після всіх витрат</div>
+                    <div
+                      className={[
+                        "metricValue",
+                        computed.profitAmount < 0 ? "negative" : "positive",
+                      ].join(" ")}
+                    >
+                      {formatUAH(computed.profitAmount)}
+                    </div>
+                  </div>
+                  <div className="metric">
+                    <div className="metricLabel">Залишок у відсотках</div>
+                    <div
+                      className={[
+                        "metricValue",
+                        computed.profitPercent < 0 ? "negative" : "positive",
+                      ].join(" ")}
+                    >
+                      {formatPct(computed.profitPercent)}
+                    </div>
+                  </div>
+                </div>
+                <div className="warningMessage">
+                  {computed.profitAmount < 0 ? (
+                    <p
+                      className="muted"
+                      style={{ marginTop: 12, marginBottom: 0 }}
+                    >
+                      Увага: витрати перевищують дохід (відʼємний прибуток).
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
         </div>
