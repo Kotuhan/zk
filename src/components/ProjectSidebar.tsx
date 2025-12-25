@@ -8,6 +8,7 @@ interface ProjectSidebarProps {
   onSelectProject: (id: string) => void;
   onCreateProject: () => void;
   onDeleteProject: (id: string, name: string) => void;
+  loading?: boolean;
 }
 
 const formatUAH = (value: number) =>
@@ -30,6 +31,7 @@ export const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   onSelectProject,
   onCreateProject,
   onDeleteProject,
+  loading = false,
 }) => {
   return (
     <div className="sidebar">
@@ -41,7 +43,14 @@ export const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
       </div>
 
       <div className="projectList">
-        {projects.length === 0 ? (
+        {loading ? (
+          <div className="emptyState">
+            <div className="spinner"></div>
+            <p className="muted" style={{ marginTop: "12px" }}>
+              Завантаження проектів...
+            </p>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="emptyState">
             <p className="muted">Немає проектів</p>
             <p className="muted" style={{ fontSize: "12px", marginTop: "4px" }}>

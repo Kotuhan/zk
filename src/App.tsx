@@ -278,32 +278,8 @@ export default function App() {
         onSelectProject={setActiveProjectId}
         onCreateProject={handleCreateProject}
         onDeleteProject={handleDeleteProject}
+        loading={projectsLoading}
       />
-
-      {projectsLoading && (
-        <div
-          style={{
-            position: "fixed",
-            top: "80px",
-            right: "20px",
-            zIndex: 9999,
-          }}
-        >
-          <div
-            className="pill"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <div className="spinner spinner-small">
-              <div className="spinner-circle"></div>
-            </div>
-            Синхронізація...
-          </div>
-        </div>
-      )}
 
       <div className="mainContent">
         <div className="container">
@@ -335,9 +311,6 @@ export default function App() {
                   {user.email}
                 </div>
               )}
-              <div className="pill">
-                Маркетинг рахується від залишку після менеджерів
-              </div>
               <button className="btnPrimary" onClick={handleSaveProject}>
                 💾 Зберегти
               </button>
